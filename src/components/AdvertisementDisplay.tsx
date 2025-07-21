@@ -77,9 +77,13 @@ const AdvertisementDisplay: React.FC<AdvertisementDisplayProps> = ({ position, c
           // Filter out dismissed ads
           const filteredAds = ads.filter((ad: Advertisement) => !dismissedAds.includes(ad.id));
           setAdvertisements(filteredAds);
+        } else if (error && error.code === '42P01') {
+          // Table doesn't exist, silently fail
+          console.log('Advertisements table not found, using empty array');
+          setAdvertisements([]);
         }
       } catch (error) {
-        console.error('Error loading advertisements:', error);
+        console.log('Error loading advertisements, using empty array:', error);
         // Fallback to empty array on error
         setAdvertisements([]);
       }

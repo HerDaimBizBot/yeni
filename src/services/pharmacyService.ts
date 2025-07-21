@@ -3,8 +3,14 @@ import { Pharmacy } from '../types';
 const RAPIDAPI_KEY = '6d5f2b0502msh3e712505ac4bbf1p1ab9dajsna6e11f8b7d4e';
 const RAPIDAPI_HOST = 'nobetci-eczaneler-api-turkiye.p.rapidapi.com';
 
+// Fallback to mock data if API fails
+const USE_MOCK_DATA = true;
 export const pharmacyService = {
   async getPharmaciesByCity(city: string): Promise<Pharmacy[]> {
+    if (USE_MOCK_DATA) {
+      return this.getMockPharmacies(city);
+    }
+    
     try {
       const response = await fetch(`https://${RAPIDAPI_HOST}/api/pharmacies/city/${encodeURIComponent(city)}`, {
         method: 'GET',
@@ -31,6 +37,13 @@ export const pharmacyService = {
   },
 
   async getPharmaciesByDistrict(city: string, district: string): Promise<Pharmacy[]> {
+    if (USE_MOCK_DATA) {
+      const cityPharmacies = this.getMockPharmacies(city);
+      return cityPharmacies.filter(pharmacy => 
+        pharmacy.district.toLowerCase().includes(district.toLowerCase())
+      );
+    }
+    
     try {
       const response = await fetch(`https://${RAPIDAPI_HOST}/api/pharmacies/district/${encodeURIComponent(city)}/${encodeURIComponent(district)}`, {
         method: 'GET',
@@ -58,6 +71,18 @@ export const pharmacyService = {
   },
 
   async getNearbyPharmacies(latitude: number, longitude: number): Promise<Pharmacy[]> {
+    if (USE_MOCK_DATA) {
+      const cities = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya'];
+      const allPharmacies = [];
+      
+      for (const city of cities) {
+        const cityPharmacies = this.getMockPharmacies(city);
+        allPharmacies.push(...cityPharmacies);
+      }
+      
+      return allPharmacies.slice(0, 10);
+    }
+    
     try {
       const response = await fetch(`https://${RAPIDAPI_HOST}/api/pharmacies/nearby?lat=${latitude}&lng=${longitude}&radius=5`, {
         method: 'GET',
@@ -90,6 +115,10 @@ export const pharmacyService = {
   },
 
   async getCities(): Promise<string[]> {
+    if (USE_MOCK_DATA) {
+      return this.getStaticCities();
+    }
+    
     try {
       const response = await fetch(`https://${RAPIDAPI_HOST}/api/cities`, {
         method: 'GET',
@@ -119,6 +148,10 @@ export const pharmacyService = {
   },
 
   async getDistricts(city: string): Promise<string[]> {
+    if (USE_MOCK_DATA) {
+      return this.getStaticDistricts(city);
+    }
+    
     try {
       const response = await fetch(`https://${RAPIDAPI_HOST}/api/districts/${encodeURIComponent(city)}`, {
         method: 'GET',

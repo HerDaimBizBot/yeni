@@ -24,26 +24,30 @@ const Dashboard: React.FC = () => {
   }, [medicineTaken, updateStats]);
 
   useEffect(() => {
-    // Add welcome notification for new users (using Supabase)
+    // Add welcome notification for new users
     const checkWelcomeNotification = async () => {
       if (!user) return;
       
-      // Check if user has any notifications
-      const { data } = await supabase
-        .from('notifications')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('title', 'DozAsistan\'a Hoş Geldiniz!')
-        .limit(1);
-      
-      if (!data || data.length === 0) {
-        // Add welcome notification
-        addNotification({
-          title: 'DozAsistan\'a Hoş Geldiniz!',
-          message: 'Takibe başlamak için ilk ilacınızı ekleyerek başlayın.',
-          type: 'info',
-          isRead: false
-        });
+      try {
+        // Check if user has any notifications
+        const { data } = await supabase
+          .from('notifications')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('title', 'DozAsistan\'a Hoş Geldiniz!')
+          .limit(1);
+        
+        if (!data || data.length === 0) {
+          // Add welcome notification
+          addNotification({
+            title: 'DozAsistan\'a Hoş Geldiniz!',
+            message: 'Takibe başlamak için ilk ilacınızı ekleyerek başlayın.',
+            type: 'info',
+            isRead: false
+          });
+        }
+      } catch (error) {
+        console.log('Error checking welcome notification:', error);
       }
     };
     

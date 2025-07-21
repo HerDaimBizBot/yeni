@@ -120,6 +120,23 @@ export const useGameification = () => {
   };
 
   const createInitialStats = async (userId: string) => {
+    // Check if stats already exist
+    try {
+      const { data: existingStats } = await supabase
+        .from('user_stats')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+      
+      if (existingStats) {
+        // Stats already exist, just load them
+        await loadUserStats();
+        return;
+      }
+    } catch (error) {
+      // No existing stats, continue with creation
+    }
+
     const initialStats = {
       user_id: userId,
       total_points: 0,
@@ -135,7 +152,7 @@ export const useGameification = () => {
     try {
       const { data, error } = await supabase
         .from('user_stats')
-        .insert(initialStats)
+        .upsert(initialStats, { onConflict: 'user_id' })
         .select()
         .single();
       

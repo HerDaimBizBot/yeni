@@ -42,14 +42,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     setAppLoading(true);
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event, session ? 'has session' : 'no session');
+      
       if (event === 'SIGNED_IN' && session?.user) {
+        console.log('✅ User signed in, loading profile...');
         await loadUserProfile(session.user.id);
       } else if (event === 'SIGNED_OUT') {
+        console.log('👋 User signed out, clearing state...');
         setUser(null);
         setActiveProfile(null);
         setFamilyProfiles([]);
       } else if (event === 'INITIAL_SESSION' && session?.user) {
+        console.log('🔄 Initial session found, loading profile...');
         await loadUserProfile(session.user.id);
+      } else if (event === 'INITIAL_SESSION' && !session) {
+        console.log('🔄 No initial session found');
       }
       setAppLoading(false);
     });
@@ -59,12 +66,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const loadUserProfile = async (userId: string): Promise<boolean> => {
-    // Prevent multiple simultaneous profile loads
-    if (appLoading) {
-      console.log('⏳ [loadUserProfile] Skipping - profile load already in progress');
-      setAppLoading(false);
-      return false;
-    }
     console.log('🔍 [loadUserProfile] Starting to load user profile for ID:', userId);
     setAppLoading(true);
     
@@ -209,16 +210,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    if (isLoading) {
-      console.log('⏳ [login] Login already in progress, skipping...');
-      return false;
-    }
     console.log('🔑 [login] Starting login process for email:', email);
     setIsLoading(true);
     try {
       console.log('🔑 [login] Attempting to sign in with password...');
-      // Clear any existing session first
-      await supabase.auth.signOut();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password

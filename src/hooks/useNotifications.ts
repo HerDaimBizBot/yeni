@@ -75,10 +75,10 @@ export const useNotifications = () => {
         };
         setNotifications(prev => [newNotification, ...prev]);
       } else {
-        console.error('Error adding notification:', error);
+        console.log('Error adding notification:', error);
       }
     } catch (error) {
-      console.error('Error adding notification:', error);
+      console.log('Error adding notification:', error);
     }
   };
 

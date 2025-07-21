@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useMedicines } from '../hooks/useMedicines';
+import { supabase } from '../lib/supabase';
 import { ReportService } from '../services/reportService';
 import { FileText, Download, Calendar, User } from 'lucide-react';
 import { toast } from 'react-toastify';

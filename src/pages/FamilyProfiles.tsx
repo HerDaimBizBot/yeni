@@ -116,13 +116,15 @@ const FamilyProfileForm: React.FC<{
 };
 
 const FamilyProfiles: React.FC = () => {
-  const { familyProfiles, addFamilyProfile, deleteFamilyProfile, activeProfile, switchProfile } = useAuth();
+  const { familyProfiles, addFamilyProfile, deleteFamilyProfile, activeProfile, switchProfile, user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [editingProfile, setEditingProfile] = useState<any>(undefined);
 
   const handleSubmit = (data: any) => {
     if (editingProfile) {
       const updateFamilyProfile = async () => {
+        if (!user) return;
+        
         try {
           const { error } = await supabase
             .from('family_profiles')
@@ -135,12 +137,8 @@ const FamilyProfiles: React.FC = () => {
             .eq('id', editingProfile.id);
           
           if (!error) {
-            // Update local state
-            setFamilyProfiles(prev => prev.map(p => 
-              p.id === editingProfile.id 
-                ? { ...p, ...data }
-                : p
-            ));
+            // Reload family profiles to get updated data
+            window.location.reload();
             toast.success('Aile profili başarıyla güncellendi');
           } else {
             toast.error('Profil güncellenirken hata oluştu');

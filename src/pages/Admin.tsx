@@ -81,9 +81,14 @@ const Admin: React.FC = () => {
             createdAt: ad.created_at
           }));
           setAdvertisements(ads);
+        } else if (error && error.code === '42P01') {
+          // Table doesn't exist, use empty array
+          console.log('Advertisements table not found');
+          setAdvertisements([]);
         }
       } catch (error) {
-        console.error('Error loading advertisements:', error);
+        console.log('Error loading advertisements:', error);
+        setAdvertisements([]);
       }
     };
     
